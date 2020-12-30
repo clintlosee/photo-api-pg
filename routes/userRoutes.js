@@ -6,7 +6,7 @@ const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 const { catchErrors } = require('../handlers/errorHandlers');
 
-router.get('/', (req, res) => {
+router.get('/', (_, res) => {
   console.log('user index');
 });
 
@@ -18,10 +18,12 @@ router.get(
   // userController.getUserId,
   catchErrors(userController.getUser)
 );
+
 router.get('/users', catchErrors(userController.getAllUsers));
 
-// router.get('/me', authController.onlyAuthUser, userController.getCurrentUser);
 router.get('/me', authController.onlyAuthUser, userController.getMe);
+
+// router.get('/me', authController.onlyAuthUser, userController.getCurrentUser);
 // router.get(
 //   '/user/:id/images',
 //   authController.onlyAuthUser,

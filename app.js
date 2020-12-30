@@ -4,35 +4,38 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
-const session = require('express-session');
+// const session = require('express-session');
 const flash = require('express-flash');
 const passport = require('passport');
 const routes = require('./routes/index');
 const errorHandlers = require('./handlers/errorHandlers');
-require('./handlers/passport');
-// TODO set up cors
+const initializePassport = require('./handlers/passport');
 
 //* Create our Express app
 const app = express();
 
 //* Take raw requests and turn them into usable properties on req.body
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+
+//* used for form data
+// app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
 //* Use helmet
 app.use(helmet());
 
-//* Use session
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-  })
-);
-
+//* Passport initialize
+initializePassport(passport);
 app.use(passport.initialize());
-app.use(passport.session());
+
+//* Use session ?
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//   })
+// );
+// app.use(passport.session());
 
 //* Use flash ?
 app.use(flash());
@@ -47,8 +50,19 @@ app.use(limiter);
 //* Set up compression
 app.use(compression());
 
+//* CORS Setup
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET, POST, PUT, PATCH, DELETE'
+  );
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
 //* Generic Route
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
   res.json('Welcome!');
 });
 

@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 // const { pool } = require('../config/db');
 const User = require('../db/user');
 
-// Get user
+//* Get user
 exports.getUser = async (req, res) => {
   const { rows: user } = await User.getUserById(req.params.id);
 
@@ -11,13 +11,13 @@ exports.getUser = async (req, res) => {
   }
 
   return res.status(200).json({
-    id: user.rows[0].id,
-    email: user.rows[0].email,
-    name: user.rows[0].name,
+    id: user?.[0].id,
+    email: user?.[0].email,
+    name: user?.[0].name,
   });
 };
 
-// Get me
+//* Get me
 exports.getMe = async (req, res) => {
   const { user } = req;
 
@@ -26,16 +26,15 @@ exports.getMe = async (req, res) => {
   }
 
   return res.status(200).json({
-    id: user[0].id,
-    email: user[0].email,
-    name: user[0].name,
+    id: user?.[0].id,
+    email: user?.[0].email,
+    name: user?.[0].name,
   });
 };
 
-// Get all users
+//* Get all users
 exports.getAllUsers = async (req, res) => {
   const { rows: users } = await User.getAll();
-  console.log('users:', users);
 
   if (!users.length) {
     return res.status(404).json({ message: 'No users found' });
@@ -81,7 +80,7 @@ exports.createUser = async (req, res) => {
           .then((data) => {
             const { rows: createdUser } = data;
 
-            return res.status(200).json({
+            return res.status(201).json({
               user: createdUser[0],
               success: 'You are registered. Please log in.',
             });
@@ -111,7 +110,7 @@ exports.createUser = async (req, res) => {
     // }
 
     // return res
-    //   .status(200)
+    //   .status(201)
     //   .json({ success: 'You are registered. Please log in.' });
   } catch (err) {
     res.status(500).json({ error: 'There was a problem registering.' });
