@@ -31,21 +31,6 @@ function initialize(passport) {
                 return done(null, false, { message: 'Invalid Login' });
               }
 
-              // jwt.sign(
-              //   payload,
-              //   'secret',
-              //   {
-              //     expiresIn: 3600,
-              //   },
-              //   (err, token) => {
-              //     res.json({
-              //       success: true,
-              //       token: `Bearer ${token}`,
-              //       role: user[0].dataValues.role,
-              //     });
-              //   }
-              // );
-
               return done(null, user);
             });
           } else {
@@ -80,17 +65,17 @@ function initialize(passport) {
   });
 
   passport.use(
-    new JwtStrategy(jwtOptions, async (payload, next) => {
+    new JwtStrategy(jwtOptions, async (payload, done) => {
       if (Date.now() > payload.exp * 1000) {
-        return next('jwt expired');
+        return done('jwt expired');
       }
 
       const { rows: user } = await User.getUserById(payload.id);
 
       if (user[0]) {
-        next(null, user);
+        done(null, user);
       } else {
-        next(null, false);
+        done(null, false);
       }
     })
   );

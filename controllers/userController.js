@@ -4,43 +4,59 @@ const User = require('../db/user');
 
 //* Get user
 exports.getUser = async (req, res) => {
-  const { rows: user } = await User.getUserById(req.params.id);
+  // const getUserQuery = 'SELECT * FROM users WHERE id = $1';
+  try {
+    const { rows: user } = await User.getUserById(req.params.id);
+    // const { rows: user } = await User.query(getUserQuery, [req.params.id]);
+    if (!user[0]) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-  if (!user[0]) {
-    return res.status(404).json({ message: 'User not found' });
+    return res.status(200).json({
+      id: user?.[0].id,
+      email: user?.[0].email,
+      name: user?.[0].name,
+    });
+  } catch (error) {
+    return res.status(400).json(error);
   }
-
-  return res.status(200).json({
-    id: user?.[0].id,
-    email: user?.[0].email,
-    name: user?.[0].name,
-  });
 };
 
 //* Get me
 exports.getMe = async (req, res) => {
-  const { user } = req;
+  try {
+    const { user } = req;
 
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(200).json({
+      id: user?.[0].id,
+      email: user?.[0].email,
+      name: user?.[0].name,
+    });
+  } catch (error) {
+    return res.status(400).json(error);
   }
-
-  return res.status(200).json({
-    id: user?.[0].id,
-    email: user?.[0].email,
-    name: user?.[0].name,
-  });
 };
 
 //* Get all users
 exports.getAllUsers = async (req, res) => {
-  const { rows: users } = await User.getAll();
+  // const getAllQuery = 'SELECT id, email, name FROM users';
+  try {
+    const { rows: users, rowCount } = await User.getAll();
+    // const { rows: users, rowCount } = await User.query(getAllQuery);
 
-  if (!users.length) {
-    return res.status(404).json({ message: 'No users found' });
+    if (!users.length) {
+      return res.status(400).json({ message: 'No users found' });
+    }
+
+    // return res.status(200).json(users);
+    return res.status(200).json({ users, rowCount });
+  } catch (error) {
+    return res.status(400).json(error);
   }
-
-  return res.status(200).json(users);
 };
 
 // Create user
@@ -112,9 +128,9 @@ exports.createUser = async (req, res) => {
     // return res
     //   .status(201)
     //   .json({ success: 'You are registered. Please log in.' });
-  } catch (err) {
+  } catch (error) {
     res.status(500).json({ error: 'There was a problem registering.' });
-    throw err;
+    throw error;
   }
 };
 
